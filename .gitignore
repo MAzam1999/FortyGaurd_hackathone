@@ -12,7 +12,11 @@ npm-debug.log*
 out/
 build/
 
+# local-only working notes (never share/commit)
+CLAUDE.md
+
 # misc
 .DS_Store
 *.pem
 .vercel
+*.tsbuildinfo
