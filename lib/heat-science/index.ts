@@ -48,6 +48,17 @@ export function workRestTier(heatIndexF: number): WorkRestTier {
   return "lower";
 }
 
+const WORK_REST_GUIDANCE: Record<WorkRestTier, string> = {
+  lower: "Basic precautions — water, shade, training.",
+  moderate: "Increase water/rest frequency, monitor workers.",
+  high: "More frequent breaks, closer supervision.",
+  very_high_extreme: "Maximum rest/water, reschedule non-essential work.",
+};
+
+export function workRestGuidance(tier: WorkRestTier): string {
+  return WORK_REST_GUIDANCE[tier];
+}
+
 /**
  * Narrative for the "you don't get to recover overnight" story, from
  * FortyGuard's `persistence` + `direction: 'below'` hours-below-threshold count.

@@ -1,3 +1,4 @@
+import { MemoryCache, cached, fortyGuardCacheKey } from "../cache/index";
 import { FortyGuardApiError, FortyGuardError, FortyGuardTimeoutError } from "./errors";
 import type {
   ApiKeyUsageResult,
@@ -21,6 +22,10 @@ const DEFAULT_TIMEOUT_MS = 600_000;
 // heat_intelligence observed at ~117s (research/api-spike.md); give real headroom
 const HEAT_INTELLIGENCE_TIMEOUT_MS = 900_000;
 const MAX_429_RETRIES = 5;
+// Every analysis endpoint is history-only (research/api-spike.md) — a given
+// request's result never changes, so a long TTL is safe. This is a per-process
+// cache only; it does not replace the real golden/demo dataset (docs/PRD.md §9).
+const DEFAULT_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 const TERMINAL_SUCCESS = new Set(["succeeded", "completed"]);
 const TERMINAL_FAILURE = new Set(["failed", "error"]);
@@ -48,6 +53,8 @@ function extractMessage(body: unknown): string | null {
 export interface FortyGuardClientOptions {
   apiKey?: string;
   baseUrl?: string;
+  cache?: MemoryCache;
+  cacheTtlMs?: number;
 }
 
 export interface PollOptions {
@@ -66,6 +73,8 @@ export interface PollOptions {
 export class FortyGuardClient {
   private readonly apiKey: string;
   private readonly baseUrl: string;
+  private readonly cache: MemoryCache;
+  private readonly cacheTtlMs: number;
 
   constructor(options: FortyGuardClientOptions = {}) {
     const apiKey = options.apiKey ?? process.env.FORTYGUARD_API_KEY;
@@ -76,6 +85,8 @@ export class FortyGuardClient {
     }
     this.apiKey = apiKey;
     this.baseUrl = options.baseUrl ?? process.env.FORTYGUARD_BASE_URL ?? DEFAULT_BASE_URL;
+    this.cache = options.cache ?? new MemoryCache();
+    this.cacheTtlMs = options.cacheTtlMs ?? DEFAULT_CACHE_TTL_MS;
   }
 
   /** Low-level request with 429 backoff. Non-2xx (other than an allowed 404) throws FortyGuardApiError. */
@@ -164,13 +175,17 @@ export class FortyGuardClient {
     }
   }
 
+  /** Submits and waits for a result, reusing a cached result for an identical request. */
   private async submitAndWait<TResult>(
     path: string,
     payload: unknown,
     pollOpts: PollOptions = {},
   ): Promise<TResult> {
-    const activityId = await this.submit(path, payload);
-    return this.waitForCompletion<TResult>(activityId, pollOpts);
+    const key = fortyGuardCacheKey(path, payload);
+    return cached(this.cache, key, this.cacheTtlMs, async () => {
+      const activityId = await this.submit(path, payload);
+      return this.waitForCompletion<TResult>(activityId, pollOpts);
+    });
   }
 
   async heatmap(request: HeatmapRequest, pollOpts?: PollOptions): Promise<HeatmapResult> {

@@ -4,6 +4,7 @@ import {
   celsiusToFahrenheit,
   heatIndexBand,
   workRestTier,
+  workRestGuidance,
   describeRecovery,
 } from "./index";
 
@@ -53,6 +54,13 @@ test("workRestTier returns 'high' at 103F", () => {
 
 test("workRestTier returns 'very_high_extreme' at 115F", () => {
   assert.equal(workRestTier(115), "very_high_extreme");
+});
+
+test("workRestGuidance gives the docs/PRD.md §7 text for each tier", () => {
+  assert.equal(workRestGuidance("lower"), "Basic precautions — water, shade, training.");
+  assert.equal(workRestGuidance("moderate"), "Increase water/rest frequency, monitor workers.");
+  assert.equal(workRestGuidance("high"), "More frequent breaks, closer supervision.");
+  assert.equal(workRestGuidance("very_high_extreme"), "Maximum rest/water, reschedule non-essential work.");
 });
 
 test("describeRecovery reports a near-total recovery deficit", () => {
