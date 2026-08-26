@@ -17,11 +17,12 @@ export default function CoolerWayPage() {
       </div>
 
       <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
-        <strong>Live-sourced data:</strong> ambient heat index and each route&apos;s first-stop shade
-        are real, one-time FortyGuard env_params/streetview pulls at each route&apos;s own location
-        (captured {SNAPSHOT_GENERATED_AT}, not re-fetched per page view). Remaining stops per route
-        keep a documented placeholder shade estimate (streetview costs ~8,600 credits/call) pending
-        the full golden dataset. Corridor is a placeholder pending the team&apos;s final corridor pick.
+        <strong>Live-sourced data:</strong> comparing the two real corridors Shamveel identified —
+        Canal Street (Route 47/48) and St. Charles Avenue (Route 12). Ambient heat index and
+        streetview shade are real, one-time FortyGuard pulls at real points on each corridor
+        (captured {SNAPSHOT_GENERATED_AT}, not re-fetched per page view). Shade is measured at one
+        representative point per corridor and applied to both listed stops as an <em>Estimate</em>
+        (not a per-stop measurement) — see lib/live-data/snapshot.ts.
       </div>
 
       <section className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">

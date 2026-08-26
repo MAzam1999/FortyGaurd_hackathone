@@ -1,10 +1,10 @@
 import type { HourlyReading } from "../shift-plan/index";
-import { SHIFT_PLAN_HOURLY_HEAT_INDEX_C, SNAPSHOT_DATE, SNAPSHOT_LOCATION } from "./snapshot";
+import { CANAL_STREET_CORRIDOR, SHIFT_PLAN_HOURLY_HEAT_INDEX_C, SNAPSHOT_DATE } from "./snapshot";
 
-// Placeholder corridor — docs/PRD.md §13 item 2 (real corridor still pending
-// Shamveel/Ghada's shortlist). Coordinates are real New Orleans points.
+// Matches summary.md's primary demo scenario: a transit-dependent worker
+// traveling from New Orleans East toward a CBD job on the Canal corridor.
 export const HOME_LOCATION = { lat: 30.0225, lon: -89.9345, label: "New Orleans East" };
-export const WORK_LOCATION = SNAPSHOT_LOCATION;
+export const WORK_LOCATION = { lat: CANAL_STREET_CORRIDOR.lat, lon: CANAL_STREET_CORRIDOR.lon, label: "Canal Street corridor (CBD)" };
 
 export interface ShiftPlanLiveData {
   date: string;

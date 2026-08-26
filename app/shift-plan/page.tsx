@@ -29,10 +29,10 @@ export default function ShiftPlanPage() {
 
       <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
         <strong>Live-sourced data:</strong> hourly heat index for {scenario.date} is a real,
-        one-time FortyGuard env_params pull (captured {SNAPSHOT_GENERATED_AT}, not re-fetched per
-        page view — see lib/live-data/snapshot.ts). Corridor is a placeholder pending the team&apos;s
-        final corridor pick. The API is history-only — this is current conditions and recent
-        trend, never a forecast.
+        one-time FortyGuard env_params pull at a real point on the Canal Street corridor
+        (captured {SNAPSHOT_GENERATED_AT}, not re-fetched per page view — see
+        lib/live-data/snapshot.ts). The API is history-only — this is current conditions and
+        recent trend, never a forecast.
       </div>
 
       {worstWindow && (
