@@ -1,10 +1,11 @@
 import { buildExposureTimeline, findWorstWindow, buildAlternatives } from "@/lib/shift-plan/index";
 import { describeRecovery } from "@/lib/heat-science/index";
-import { SHIFT_PLAN_SCENARIO } from "@/lib/demo-data/shift-plan-scenario";
+import { getShiftPlanLiveData } from "@/lib/live-data/shift-plan";
+import { SNAPSHOT_GENERATED_AT } from "@/lib/live-data/snapshot";
 import { ExposureTimeline } from "@/components/heat/ExposureTimeline";
 
 export default function ShiftPlanPage() {
-  const scenario = SHIFT_PLAN_SCENARIO;
+  const scenario = getShiftPlanLiveData();
   const timeline = buildExposureTimeline(scenario.hourlyReadings);
   const worstWindow = findWorstWindow(timeline);
   const alternatives = worstWindow ? buildAlternatives(worstWindow) : [];
@@ -26,10 +27,12 @@ export default function ShiftPlanPage() {
         </p>
       </div>
 
-      <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-        <strong>Demo data:</strong> this location, date, and hourly readings are illustrative
-        placeholders — not yet a live or cached FortyGuard call. The API is history-only (no
-        forecast), so this always shows current conditions and recent trend, never a prediction.
+      <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+        <strong>Live-sourced data:</strong> hourly heat index for {scenario.date} is a real,
+        one-time FortyGuard env_params pull (captured {SNAPSHOT_GENERATED_AT}, not re-fetched per
+        page view — see lib/live-data/snapshot.ts). Corridor is a placeholder pending the team&apos;s
+        final corridor pick. The API is history-only — this is current conditions and recent
+        trend, never a forecast.
       </div>
 
       {worstWindow && (

@@ -1,9 +1,10 @@
 import { compareRoutes, stopDose } from "@/lib/heat-dose/index";
-import { COOLER_WAY_SCENARIO } from "@/lib/demo-data/cooler-way-scenario";
+import { getCoolerWayLiveData } from "@/lib/live-data/cooler-way";
+import { SNAPSHOT_GENERATED_AT } from "@/lib/live-data/snapshot";
 import { RouteMap } from "@/components/map/RouteMap";
 
 export default function CoolerWayPage() {
-  const { routeA, routeB } = COOLER_WAY_SCENARIO;
+  const { routeA, routeB } = getCoolerWayLiveData();
   const comparison = compareRoutes(routeA, routeB);
 
   return (
@@ -15,9 +16,12 @@ export default function CoolerWayPage() {
         </p>
       </div>
 
-      <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-        <strong>Demo data:</strong> stop locations and shade percentages are illustrative
-        placeholders, not a live streetview call — no credits spent generating this.
+      <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+        <strong>Live-sourced data:</strong> ambient heat index and each route&apos;s first-stop shade
+        are real, one-time FortyGuard env_params/streetview pulls at each route&apos;s own location
+        (captured {SNAPSHOT_GENERATED_AT}, not re-fetched per page view). Remaining stops per route
+        keep a documented placeholder shade estimate (streetview costs ~8,600 credits/call) pending
+        the full golden dataset. Corridor is a placeholder pending the team&apos;s final corridor pick.
       </div>
 
       <section className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">

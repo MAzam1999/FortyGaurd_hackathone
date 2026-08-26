@@ -1,11 +1,12 @@
 import { buildWorksiteStatus, formatLogEntry } from "@/lib/crew-board/index";
 import { workRestGuidance } from "@/lib/heat-science/index";
-import { CREW_BOARD_SCENARIO } from "@/lib/demo-data/crew-board-scenario";
+import { getCrewBoardLiveData } from "@/lib/live-data/crew-board";
+import { SNAPSHOT_GENERATED_AT } from "@/lib/live-data/snapshot";
 import { WorkRestBadge } from "@/components/heat/WorkRestBadge";
 
 export default function CrewBoardPage() {
   const now = new Date();
-  const worksites = CREW_BOARD_SCENARIO.map((site) => buildWorksiteStatus(site));
+  const worksites = getCrewBoardLiveData().map((site) => buildWorksiteStatus(site));
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-6 py-12">
@@ -17,9 +18,11 @@ export default function CrewBoardPage() {
         </p>
       </div>
 
-      <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-        <strong>Demo data:</strong> worksites, heat index, and wet-bulb readings are illustrative
-        placeholders — not a live/cached FortyGuard call.
+      <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+        <strong>Live-sourced data:</strong> heat index and wet-bulb are real, one-time FortyGuard
+        env_params pulls at each worksite&apos;s own location (captured {SNAPSHOT_GENERATED_AT}, not
+        re-fetched per page view). Worksite locations are placeholders pending the team&apos;s final
+        corridor pick; workload category is a domain assignment, not API data.
       </div>
 
       <section className="flex flex-col gap-4">

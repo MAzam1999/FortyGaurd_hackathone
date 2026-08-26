@@ -100,6 +100,9 @@ export class FortyGuardClient {
     while (true) {
       const res = await fetch(`${this.baseUrl}${path}`, {
         ...init,
+        // Next.js's fetch Data Cache must never intercept this — the status-poll
+        // GET would otherwise return a stale cached "pending" response forever.
+        cache: "no-store",
         headers: {
           "api-key": this.apiKey,
           "Content-Type": "application/json",
