@@ -1,0 +1,6 @@
+test_id,heat_index_f,wet_bulb_c,humidity_pct,solar_irradiance,persistence_h,expected_category,expected_recovery
+TC-001,82.0,22.0,50,400,2,Caution,False
+TC-002,95.0,26.0,65,700,3,Extreme Caution,False
+TC-003,105.0,29.0,70,850,4,Danger,False
+TC-004,130.0,33.0,80,950,5,Extreme Danger,False
+TC-005,78.0,19.0,40,200,6,Normal,True
