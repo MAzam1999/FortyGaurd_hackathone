@@ -95,3 +95,20 @@ The API currently serves **historical data only** (2019-01-01 → present). The 
 ---
 
 *This file is the source of truth for all subsequent API work. Do not write application code that touches the FortyGuard API until you have read it.*
+
+---
+
+## Addendum — live client verification (Azam, 2026-08-26)
+
+While wiring `/lib/fortyguard`, direct live calls (via the real TS client, not the official Python SDK) surfaced response-shape bugs in our own client that unit tests hadn't caught, plus new cost data. All fixed in `client.ts`/`types.ts`; noted here since they affect budgeting and anyone integrating against this client.
+
+| Endpoint | Finding | Real credit cost |
+|---|---|---|
+| `/v1/heatmap` | Response envelope is `{ error, status_code, message, data: { activity_id, status, result } }`, not flat as our client assumed — every `submitAndWait`-based endpoint was silently broken until fixed. `stats_data` shape is also `{ temperature_stats: {...}, overall_temperature_distribution, normal_temperature_distribution, temperature_frequency }`, not `{ minimum, maximum, mean, n_cells }`. | **4,220** (matches original spike figure) |
+| `/v1/env_params` | `temperature` is a **required** field (422 without it), not optional. Result is `{ metadata: {...}, locations: [{ lat, lon, elevation, temperature, parameters: { heat_index_celsius: [...], ... }, solar_irradiance }] }` — every parameter is an array over `metadata.timestamps`, not a flat scalar. | **2,900** (new — not in original spike) |
+| `/v1/satellite` | Request must nest coordinates as `sat: { latitude, longitude }` plus `date_time` and `granularity` (a bare lat/lon 422s: "should be a valid dictionary or object"). Confirmed against the official quickstart's `satellite_segmentation`. | **14,400** (new — not in original spike; **more expensive than streetview or heat_intelligence**) |
+| `/v1/streetview` | Request is `{ latitude, longitude, vertical_angle, horizontal_angle, back_view }` — no `heading`/`date` fields as previously typed. Result nests under `front` (and `back` when `back_view: true`): `{ coordinates, front: { original_image, segments: { tree, building, road, sky, grass, sidewalk, others, ... percentages }, image_legend, segmented_image, image_date } }` — `segments` is a class→percent map, not an array. | **8,600** (matches original spike figure) |
+
+**Budget implication:** satellite is the most expensive analytic type observed so far — 14,400 credits/call, over 3x heatmap. If satellite ends up used anywhere in a hero workflow, budget for it accordingly; it isn't currently required by any hero workflow's confirmed plan (§6).
+
+**Total spent verifying all four endpoints once each: 34,340 / 2,000,000 credits** on the designated golden key (Azam's).

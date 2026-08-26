@@ -19,13 +19,13 @@ test("sends the api-key header and repeats api_key in the body for fetchApiKeyUs
   const originalFetch = globalThis.fetch;
   globalThis.fetch = (async (url, init) => {
     calls.push({ url: String(url), init: init as RequestInit });
-    return mockResponse(200, { total_available_credits: 2_000_000 });
+    return mockResponse(200, { credit_summary: { total_available_credits: 2_000_000 } });
   }) as typeof fetch;
 
   try {
     const client = new FortyGuardClient({ apiKey: "test-key" });
     const usage = await client.fetchApiKeyUsage();
-    assert.equal(usage.total_available_credits, 2_000_000);
+    assert.equal(usage.credit_summary?.total_available_credits, 2_000_000);
     assert.equal(calls.length, 1);
     assert.equal((calls[0].init.headers as Record<string, string>)["api-key"], "test-key");
     assert.equal(JSON.parse(calls[0].init.body as string).api_key, "test-key");
@@ -40,13 +40,13 @@ test("retries a 429 using retry-after, then succeeds", async () => {
   globalThis.fetch = (async () => {
     call += 1;
     if (call === 1) return new Response(null, { status: 429, headers: { "retry-after": "0" } });
-    return mockResponse(200, { total_available_credits: 100 });
+    return mockResponse(200, { credit_summary: { total_available_credits: 100 } });
   }) as typeof fetch;
 
   try {
     const client = new FortyGuardClient({ apiKey: "k" });
     const usage = await client.fetchApiKeyUsage();
-    assert.equal(usage.total_available_credits, 100);
+    assert.equal(usage.credit_summary?.total_available_credits, 100);
     assert.equal(call, 2);
   } finally {
     globalThis.fetch = originalFetch;
@@ -58,11 +58,15 @@ test("handles the 404-right-after-submit race by retrying instead of failing", a
   const originalFetch = globalThis.fetch;
   globalThis.fetch = (async (url) => {
     const u = String(url);
-    if (u.endsWith("/v1/heatmap")) return mockResponse(200, { activity_id: "abc123" });
+    if (u.endsWith("/v1/heatmap")) return mockResponse(200, { error: false, status_code: 200, data: { activity_id: "abc123" } });
     if (u.includes("/v1/status/")) {
       statusCalls += 1;
       if (statusCalls === 1) return new Response(null, { status: 404 });
-      return mockResponse(200, { status: "Completed", result: { stats_data: { n_cells: 5 } } });
+      return mockResponse(200, {
+        error: false,
+        status_code: 200,
+        data: { activity_id: "abc123", status: "Completed", result: { stats_data: { temperature_stats: { mean: 5 } } } },
+      });
     }
     throw new Error(`unexpected url ${u}`);
   }) as typeof fetch;
@@ -70,7 +74,7 @@ test("handles the 404-right-after-submit race by retrying instead of failing", a
   try {
     const client = new FortyGuardClient({ apiKey: "k" });
     const result = await client.heatmap(HEATMAP_REQUEST, { pollIntervalMs: 5 });
-    assert.equal(result.stats_data.n_cells, 5);
+    assert.equal(result.stats_data.temperature_stats.mean, 5);
     assert.ok(statusCalls >= 2);
   } finally {
     globalThis.fetch = originalFetch;
@@ -83,8 +87,13 @@ test("caches an identical request — second call doesn't hit fetch again", asyn
   globalThis.fetch = (async (url) => {
     fetchCalls += 1;
     const u = String(url);
-    if (u.endsWith("/v1/heatmap")) return mockResponse(200, { activity_id: "abc123" });
-    if (u.includes("/v1/status/")) return mockResponse(200, { status: "Completed", result: { stats_data: { n_cells: 5 } } });
+    if (u.endsWith("/v1/heatmap")) return mockResponse(200, { error: false, status_code: 200, data: { activity_id: "abc123" } });
+    if (u.includes("/v1/status/"))
+      return mockResponse(200, {
+        error: false,
+        status_code: 200,
+        data: { activity_id: "abc123", status: "Completed", result: { stats_data: { temperature_stats: { mean: 5 } } } },
+      });
     throw new Error(`unexpected url ${u}`);
   }) as typeof fetch;
 
@@ -104,8 +113,9 @@ test("throws FortyGuardTimeoutError when polling exceeds the timeout", async () 
   const originalFetch = globalThis.fetch;
   globalThis.fetch = (async (url) => {
     const u = String(url);
-    if (u.endsWith("/v1/heatmap")) return mockResponse(200, { activity_id: "slow1" });
-    if (u.includes("/v1/status/")) return mockResponse(200, { status: "processing" });
+    if (u.endsWith("/v1/heatmap")) return mockResponse(200, { error: false, status_code: 200, data: { activity_id: "slow1" } });
+    if (u.includes("/v1/status/"))
+      return mockResponse(200, { error: false, status_code: 200, data: { activity_id: "slow1", status: "processing" } });
     throw new Error(`unexpected url ${u}`);
   }) as typeof fetch;
 

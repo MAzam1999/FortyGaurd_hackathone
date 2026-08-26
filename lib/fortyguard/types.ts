@@ -42,11 +42,23 @@ export interface HeatmapRequest {
   direction?: ThresholdDirection;
 }
 
+export interface HeatmapDistribution {
+  x_axis: number[];
+  y_axis: number[];
+}
+
+/** Confirmed 2026-08-26 against a live call — no `n_cells`; cell count comes from `map_data.features.length`. */
 export interface HeatmapStats {
-  minimum: number | null;
-  maximum: number | null;
-  mean: number | null;
-  n_cells: number;
+  temperature_stats: {
+    minimum: number | null;
+    maximum: number | null;
+    mean: number | null;
+    standard_deviation: number | null;
+  };
+  overall_temperature_distribution: number[];
+  normal_temperature_distribution: HeatmapDistribution;
+  temperature_frequency: HeatmapDistribution;
+  [key: string]: unknown;
 }
 
 export interface HeatmapResult {
@@ -69,42 +81,84 @@ export interface HeatmapResult {
 export interface EnvParamsRequest {
   latitude: number;
   longitude: number;
-  temperature?: number;
+  /** Required — confirmed 2026-08-26 live (422 "Field 'temperature' is required." without it). */
+  temperature: number;
   date_time: DateTimeFilter;
   /** Basic plan caps this at 3; Premium (this team's plan) returns all */
   analysis?: string[];
 }
 
-export interface EnvParamsResult {
-  heat_index_celsius: number | null;
-  wet_bulb_temperature_celsius: number | null;
-  relative_humidity_percent: number | null;
-  solar_irradiance: number | null;
-  [key: string]: unknown;
+/** Confirmed 2026-08-26 against a live call — one entry per requested location, each parameter an array over `metadata.timestamps`. */
+export interface EnvParamsLocation {
+  lat: number;
+  lon: number;
+  elevation: number | null;
+  temperature: number | null;
+  parameters: {
+    heat_index_celsius?: (number | null)[];
+    wet_bulb_temperature_celsius?: (number | null)[];
+    relative_humidity_percent?: (number | null)[];
+    apparent_temperature_celsius?: (number | null)[];
+    [analysisKey: string]: (number | null)[] | undefined;
+  };
+  solar_irradiance?: {
+    clear_sky: { ghi: number | null; dni: number | null; dhi: number | null };
+    description?: string;
+  };
 }
 
+export interface EnvParamsResult {
+  metadata: {
+    timezone: string;
+    timezone_offset_hours: number;
+    time_range: { start: string; end: string; interval: string; count: number };
+    timestamps: string[];
+  };
+  locations: EnvParamsLocation[];
+}
+
+/**
+ * Confirmed 2026-08-26 against the official quickstart (fortyguard/client.py,
+ * street_view_segmentation) — no `heading`/`date` fields; angles + back_view instead.
+ */
 export interface StreetviewRequest {
   latitude: number;
   longitude: number;
-  heading?: number;
-  date?: string;
+  vertical_angle?: number; // default 0.0
+  horizontal_angle?: number; // default 0.0
+  back_view?: boolean; // default false
 }
 
-export interface StreetviewSegment {
-  class: string; // e.g. 'tree' | 'building' | 'road' | 'sky' | 'car'
-  percent: number;
+/** Class name -> percent share of the frame (e.g. 'tree', 'building', 'road', 'sky', 'grass', 'sidewalk', 'others'). */
+export type StreetviewSegments = Record<string, number>;
+
+export interface StreetviewView {
+  original_image: string; // base64
+  segments: StreetviewSegments;
+  image_legend: Record<string, [number, number, number]>; // class -> RGB
+  segmented_image: string; // base64
+  image_date: string;
 }
 
+/** Confirmed 2026-08-26 against a live call — result is nested under `front` (and `back` when `back_view: true`), not flat. */
 export interface StreetviewResult {
-  segments: StreetviewSegment[];
-  image_legend?: Record<string, unknown>;
-  [key: string]: unknown;
+  coordinates: { latitude: number; longitude: number };
+  front: StreetviewView;
+  back?: StreetviewView;
 }
 
+/**
+ * Public shape kept flat (matches streetview/heat_intelligence) — the client
+ * wraps `latitude`/`longitude` into the wire-level `sat: { latitude, longitude }`
+ * object, per the official quickstart (fortyguard/client.py, satellite_segmentation),
+ * confirmed 2026-08-26: a bare `sat` string/lat-lon pair 422s ("should be a valid
+ * dictionary or object").
+ */
 export interface SatelliteRequest {
   latitude: number;
   longitude: number;
-  date?: string;
+  date_time: DateTimeFilter;
+  granularity?: Granularity;
 }
 
 export type SatelliteResult = Record<string, unknown>;
@@ -130,16 +184,33 @@ export interface HeatIntelligenceResult {
 }
 
 export interface ApiKeyUsageResult {
-  credits_total?: number;
-  credits_remaining?: number;
+  credit_summary?: {
+    total_available_credits: number | null;
+    total_credits_used: number | null;
+    total_remaining_credits: number | null;
+    cycle_credits_used: number | null;
+    cycle_remaining_credits: number | null;
+    cycle_usage_percentage: number | null;
+  };
+  activity_breakdown?: Array<{ name: string; credits: number; count: number; percentage: number }>;
   [key: string]: unknown;
 }
 
-export interface SubmitResponse {
-  activity_id: string;
-  [key: string]: unknown;
+/**
+ * Every submit/status endpoint wraps its payload in this envelope — confirmed
+ * 2026-08-26 against a live /v1/heatmap call (research/api-spike.md). The
+ * activity_id/status/result all live under `data`, not top-level.
+ */
+export interface ApiEnvelope<TData> {
+  error: boolean;
+  status_code: number;
+  message?: string;
+  data: TData;
 }
 
+export type SubmitResponse = ApiEnvelope<{ activity_id: string }>;
+
+/** Observed values are capitalized ("Processing", "Completed") — matched case-insensitively. */
 export type ActivityStatus =
   | "pending"
   | "processing"
@@ -149,9 +220,8 @@ export type ActivityStatus =
   | "error"
   | (string & {});
 
-export interface StatusResponse<TResult = unknown> {
+export type StatusResponse<TResult = unknown> = ApiEnvelope<{
+  activity_id: string;
   status: ActivityStatus;
   result?: TResult;
-  message?: string;
-  [key: string]: unknown;
-}
+}>;

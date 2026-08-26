@@ -132,10 +132,11 @@ export class FortyGuardClient {
   private async submit(path: string, payload: unknown): Promise<string> {
     const res = await this.request(path, { method: "POST", body: JSON.stringify(payload) });
     const body = (await safeJson(res)) as SubmitResponse | null;
-    if (!body?.activity_id) {
+    const activityId = body?.data?.activity_id;
+    if (!activityId) {
       throw new FortyGuardApiError(`Submit to ${path} did not return an activity_id`, res.status, body);
     }
-    return body.activity_id;
+    return activityId;
   }
 
   /** Poll GET /v1/status/{activityId} until a terminal status, handling the 404-right-after-submit race. */
@@ -160,15 +161,15 @@ export class FortyGuardClient {
         continue;
       }
 
-      const data = (await safeJson(res)) as StatusResponse<TResult> | null;
-      const status = String(data?.status ?? "").toLowerCase();
+      const body = (await safeJson(res)) as StatusResponse<TResult> | null;
+      const status = String(body?.data?.status ?? "").toLowerCase();
       opts.onTick?.(status);
 
       if (TERMINAL_SUCCESS.has(status)) {
-        return (data?.result ?? (data as unknown)) as TResult;
+        return (body?.data?.result ?? (body as unknown)) as TResult;
       }
       if (TERMINAL_FAILURE.has(status)) {
-        throw new FortyGuardApiError(data?.message ?? "FortyGuard activity failed", res.status, data);
+        throw new FortyGuardApiError(body?.message ?? "FortyGuard activity failed", res.status, body);
       }
 
       await sleep(pollIntervalMs);
@@ -197,11 +198,24 @@ export class FortyGuardClient {
   }
 
   async satellite(request: SatelliteRequest, pollOpts?: PollOptions): Promise<SatelliteResult> {
-    return this.submitAndWait<SatelliteResult>("/v1/satellite", request, pollOpts);
+    const { latitude, longitude, date_time, granularity } = request;
+    const payload = {
+      sat: { latitude, longitude },
+      date_time,
+      granularity: granularity ?? 100,
+    };
+    return this.submitAndWait<SatelliteResult>("/v1/satellite", payload, pollOpts);
   }
 
   async streetview(request: StreetviewRequest, pollOpts?: PollOptions): Promise<StreetviewResult> {
-    return this.submitAndWait<StreetviewResult>("/v1/streetview", request, pollOpts);
+    const payload = {
+      latitude: request.latitude,
+      longitude: request.longitude,
+      vertical_angle: request.vertical_angle ?? 0,
+      horizontal_angle: request.horizontal_angle ?? 0,
+      back_view: request.back_view ?? false,
+    };
+    return this.submitAndWait<StreetviewResult>("/v1/streetview", payload, pollOpts);
   }
 
   /** Confirmed ~117s latency (research/api-spike.md) — never call live in a demo; pre-generate and cache. */
