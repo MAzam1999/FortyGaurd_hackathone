@@ -1,5 +1,5 @@
 import { buildExposureTimeline, findWorstWindow, buildAlternatives } from "@/lib/shift-plan/index";
-import { describeRecovery } from "@/lib/heat-science/index";
+import { describeRecovery, OVERNIGHT_RECOVERY_DISCLAIMER } from "@/lib/heat-science/index";
 import { getShiftPlanLiveData } from "@/lib/live-data/shift-plan";
 import { SNAPSHOT_GENERATED_AT } from "@/lib/live-data/snapshot";
 import { ExposureTimeline } from "@/components/heat/ExposureTimeline";
@@ -62,8 +62,13 @@ export default function ShiftPlanPage() {
       </section>
 
       <section className="rounded-lg border border-zinc-200 p-4 text-sm dark:border-zinc-800">
-        <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Overnight recovery</h2>
+        <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+          Overnight cooling opportunity
+        </h2>
         <p className="mt-1">{recovery}</p>
+        <p className="mt-2 text-xs italic text-zinc-500 dark:text-zinc-400">
+          {OVERNIGHT_RECOVERY_DISCLAIMER}
+        </p>
       </section>
     </div>
   );

@@ -1,11 +1,15 @@
 import { bandSeverity, heatIndexBand } from "../heat-science/index";
 
 /**
- * Heuristic: shade can reduce a stop's effective dose by at most this fraction.
- * First-pass constant, not a cited figure — tune with Ghada/Shamveel once real
- * streetview data is in.
+ * Project-defined route-scoring weight, NOT a physiological/OSHA heat-stress
+ * reduction figure — per crew-board-science-review.md §6 (decision: REMOVE
+ * as a scientific reduction claim; shade's real effect varies with sun
+ * angle, wind, canopy type, and duration, so no fixed percentage is
+ * defensible as a physical fact). This only scales the app's own relative
+ * `stopDose` comparison between routes — it must never be presented to users
+ * as "shade reduces heat stress by 60%".
  */
-const MAX_SHADE_REDUCTION = 0.6;
+const PROJECT_DEFINED_SHADE_WEIGHT = 0.6;
 
 export interface StopExposure {
   waitMinutes: number;
@@ -14,10 +18,14 @@ export interface StopExposure {
   shadePercent: number;
 }
 
-/** Cumulative heat dose for one stop: minutes exposed x band severity x shade discount. */
+/**
+ * Cumulative heat dose for one stop: minutes exposed x band severity x
+ * project-defined shade weighting. This is a relative exposure score for
+ * comparing routes, not a clinical or OSHA heat-stress measurement.
+ */
 export function stopDose(stop: StopExposure): number {
   const severity = bandSeverity(heatIndexBand(stop.heatIndexF));
-  const shadeFactor = 1 - (stop.shadePercent / 100) * MAX_SHADE_REDUCTION;
+  const shadeFactor = 1 - (stop.shadePercent / 100) * PROJECT_DEFINED_SHADE_WEIGHT;
   return stop.waitMinutes * severity * shadeFactor;
 }
 

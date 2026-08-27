@@ -3,22 +3,36 @@ import { workRestTier, type WorkRestTier } from "../heat-science/index";
 export type Workload = "light" | "moderate" | "heavy";
 
 /**
- * Heuristic offset representing added metabolic heat load by workload
- * category — not a cited standard. Needs review with Shamveel (occupational
- * heat-safety background) before this goes in front of judges.
+ * Workload changes a worker's metabolic heat production, not the
+ * environmental Heat Index — per crew-board-science-review.md §5 (decision:
+ * REMOVE the prior +8°F/−5°F offset entirely; the Heat Index reading must
+ * stay unmodified). Workload is shown as its own field and only qualifies
+ * the *occupational risk context*, a project heuristic layered on top of the
+ * unmodified environmental reading — never folded back into heat_index.
  */
-const WORKLOAD_ADJUSTMENT_F: Record<Workload, number> = {
-  light: -5,
-  moderate: 0,
-  heavy: 8,
+export type OccupationalRiskContext = "baseline" | "increased";
+
+const OCCUPATIONAL_RISK_CONTEXT: Record<Workload, OccupationalRiskContext> = {
+  light: "baseline",
+  moderate: "baseline",
+  heavy: "increased",
 };
 
-export function effectiveHeatIndexF(heatIndexF: number, workload: Workload): number {
-  return heatIndexF + WORKLOAD_ADJUSTMENT_F[workload];
+export const OCCUPATIONAL_RISK_LABEL: Record<OccupationalRiskContext, string> = {
+  baseline: "Baseline",
+  increased: "Increased",
+};
+
+const OCCUPATIONAL_RISK_NOTE: Partial<Record<Workload, string>> = {
+  heavy: "Heavy work produces more metabolic heat and may require additional rest/cooling measures.",
+};
+
+export function occupationalRiskContext(workload: Workload): OccupationalRiskContext {
+  return OCCUPATIONAL_RISK_CONTEXT[workload];
 }
 
-export function crewWorkRestTier(heatIndexF: number, workload: Workload): WorkRestTier {
-  return workRestTier(effectiveHeatIndexF(heatIndexF, workload));
+export function occupationalRiskNote(workload: Workload): string | null {
+  return OCCUPATIONAL_RISK_NOTE[workload] ?? null;
 }
 
 export interface WorksiteStatus {
@@ -27,6 +41,7 @@ export interface WorksiteStatus {
   wetBulbC: number;
   workload: Workload;
   tier: WorkRestTier;
+  occupationalRiskContext: OccupationalRiskContext;
 }
 
 export function buildWorksiteStatus(input: {
@@ -35,10 +50,14 @@ export function buildWorksiteStatus(input: {
   wetBulbC: number;
   workload: Workload;
 }): WorksiteStatus {
-  return { ...input, tier: crewWorkRestTier(input.heatIndexF, input.workload) };
+  return {
+    ...input,
+    tier: workRestTier(input.heatIndexF),
+    occupationalRiskContext: occupationalRiskContext(input.workload),
+  };
 }
 
 /** A shareable, timestamped line a supervisor could paste into a log. */
 export function formatLogEntry(status: WorksiteStatus, timestamp: Date): string {
-  return `[${timestamp.toISOString()}] ${status.name}: ${status.tier} tier (heat index ${Math.round(status.heatIndexF)}°F, ${status.workload} workload)`;
+  return `[${timestamp.toISOString()}] ${status.name}: ${status.tier} tier (heat index ${Math.round(status.heatIndexF)}°F, ${status.workload} workload, occupational risk ${OCCUPATIONAL_RISK_LABEL[status.occupationalRiskContext].toLowerCase()})`;
 }

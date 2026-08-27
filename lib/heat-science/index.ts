@@ -40,13 +40,23 @@ export function bandSeverity(band: HeatIndexBand): number {
 
 export type WorkRestTier = "lower" | "moderate" | "high" | "very_high_extreme";
 
-/** Occupational work/rest guidance tiers, docs/PRD.md §7 (⚠ VERIFY against osha.gov directly). */
+/**
+ * Project screening tiers that mirror NWS Heat Index categories (91/103/115°F
+ * ≈ Extreme Caution/Danger/Extreme Danger) — this is NOT an OSHA or NIOSH
+ * occupational work/rest schedule. Verified against current guidance in
+ * crew-board-science-review.md §4 (decision: keep the ladder as a project
+ * screening heuristic, never label it an OSHA/NIOSH requirement). Any UI
+ * showing a tier must also show WORK_REST_TIER_DISCLAIMER.
+ */
 export function workRestTier(heatIndexF: number): WorkRestTier {
   if (heatIndexF >= 115) return "very_high_extreme";
   if (heatIndexF >= 103) return "high";
   if (heatIndexF >= 91) return "moderate";
   return "lower";
 }
+
+export const WORK_REST_TIER_DISCLAIMER =
+  "Project screening levels — not OSHA/NIOSH work/rest requirements.";
 
 const WORK_REST_GUIDANCE: Record<WorkRestTier, string> = {
   lower: "Basic precautions — water, shade, training.",
@@ -62,9 +72,16 @@ export function workRestGuidance(tier: WorkRestTier): string {
 /**
  * Narrative for the "you don't get to recover overnight" story, from
  * FortyGuard's `persistence` + `direction: 'below'` hours-below-threshold count.
+ * This is a project-defined indicator, not an OSHA/CDC recovery standard —
+ * see crew-board-science-review.md §7 (decision: keep, with disclosure).
+ * Deliberately avoids claiming recovery is "adequate" or "inadequate"; pair
+ * with OVERNIGHT_RECOVERY_DISCLAIMER in any UI that shows this.
  */
 export function describeRecovery(hoursBelowThreshold: number, windowHours: number): string {
   const qualifier =
     hoursBelowThreshold === windowHours ? `All ${windowHours}` : `Only ${hoursBelowThreshold}`;
   return `${qualifier} of the last ${windowHours} hours dropped below the overnight recovery threshold.`;
 }
+
+export const OVERNIGHT_RECOVERY_DISCLAIMER =
+  "Project-defined indicator — not an OSHA/CDC medical standard.";

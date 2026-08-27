@@ -25,6 +25,13 @@ export default function CoolerWayPage() {
         (not a per-stop measurement) — see lib/live-data/snapshot.ts.
       </div>
 
+      <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+        <strong>Dose is a project-defined score</strong>, not a clinical or OSHA heat-stress
+        measurement — it combines wait time, heat-index severity, and shade coverage to compare
+        routes relative to each other. Shade reduces radiant heat exposure, but we do not claim a
+        universal percentage reduction in heat stress.
+      </div>
+
       <section className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
         <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Recommended</h2>
         <p className="mt-1 text-lg font-semibold">{comparison.recommended}</p>
