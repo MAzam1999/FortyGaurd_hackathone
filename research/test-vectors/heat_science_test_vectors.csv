@@ -1,0 +1,6 @@
+test_id,heat_index_f,hours_below_80f,expected_nws_category,expected_recovery_indicator,notes
+TC-001,78.0,7.0,Below Caution,True,Below 80°F: project-defined label below NWS Caution threshold.
+TC-002,85.0,5.0,Caution,False,NWS Caution range.
+TC-003,98.0,4.0,Extreme Caution,False,NWS Extreme Caution range.
+TC-004,110.0,2.0,Danger,False,NWS Danger range.
+TC-005,128.0,0.0,Extreme Danger,False,NWS Extreme Danger range.
