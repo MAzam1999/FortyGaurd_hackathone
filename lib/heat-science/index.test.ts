@@ -1,11 +1,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   celsiusToFahrenheit,
   heatIndexBand,
+  heatIndexBandLabel,
   workRestTier,
   workRestGuidance,
   describeRecovery,
+  hasAdequateOvernightRecovery,
 } from "./index";
 
 test("celsiusToFahrenheit converts 0C to 32F", () => {
@@ -75,4 +79,52 @@ test("describeRecovery reports full recovery", () => {
     describeRecovery(24, 24),
     "All 24 of the last 24 hours dropped below the overnight recovery threshold.",
   );
+});
+
+// Shared test-vector table, docs/PRD.md §7/§9 — same CSV Ghada's Python
+// notebook (research/heat_science_validation.ipynb) validates against, so a
+// formula bug can't silently diverge between the TS port and the notebook.
+type TestVectorRow = {
+  testId: string;
+  heatIndexF: number;
+  hoursBelow80F: number;
+  expectedNwsCategory: string;
+  expectedRecoveryIndicator: boolean;
+};
+
+function loadTestVectors(): TestVectorRow[] {
+  const csvPath = join(__dirname, "../../research/test-vectors/heat_science_test_vectors.csv");
+  const lines = readFileSync(csvPath, "utf-8").trim().split("\n");
+  const [, ...rows] = lines;
+  return rows.map((line) => {
+    const [testId, heatIndexF, hoursBelow80F, expectedNwsCategory, expectedRecoveryIndicator] =
+      line.split(",");
+    return {
+      testId,
+      heatIndexF: Number(heatIndexF),
+      hoursBelow80F: Number(hoursBelow80F),
+      expectedNwsCategory,
+      expectedRecoveryIndicator: expectedRecoveryIndicator === "True",
+    };
+  });
+}
+
+test("heatIndexBandLabel matches every row's expected_nws_category in the shared CSV", () => {
+  for (const row of loadTestVectors()) {
+    assert.equal(
+      heatIndexBandLabel(heatIndexBand(row.heatIndexF)),
+      row.expectedNwsCategory,
+      `${row.testId}: heat_index_f=${row.heatIndexF}`,
+    );
+  }
+});
+
+test("hasAdequateOvernightRecovery matches every row's expected_recovery_indicator in the shared CSV", () => {
+  for (const row of loadTestVectors()) {
+    assert.equal(
+      hasAdequateOvernightRecovery(row.hoursBelow80F),
+      row.expectedRecoveryIndicator,
+      `${row.testId}: hours_below_80f=${row.hoursBelow80F}`,
+    );
+  }
 });

@@ -38,6 +38,37 @@ export function bandSeverity(band: HeatIndexBand): number {
   return band === null ? 0 : BAND_SEVERITY[band];
 }
 
+const BAND_LABEL: Record<Exclude<HeatIndexBand, null>, string> = {
+  caution: "Caution",
+  extreme_caution: "Extreme Caution",
+  danger: "Danger",
+  extreme_danger: "Extreme Danger",
+};
+
+/**
+ * Display label matching Ghada's `classify_nws_heat_index` (research/heat_science_validation.ipynb)
+ * — "Below Caution" is a project-defined label for values below 80F, not an official NWS category.
+ */
+export function heatIndexBandLabel(band: HeatIndexBand): string {
+  return band === null ? "Below Caution" : BAND_LABEL[band];
+}
+
+/** Mirrors Ghada's RECOVERY_MIN_HOURS (research/heat_science_validation.ipynb). */
+export const RECOVERY_MIN_HOURS = 6.0;
+
+/**
+ * Project-defined overnight recovery indicator, matching Ghada's
+ * `evaluate_project_overnight_recovery`: True when conditions stayed below the
+ * project's 80F recovery threshold for at least RECOVERY_MIN_HOURS. Not an
+ * OSHA/NIOSH standard — see OVERNIGHT_RECOVERY_DISCLAIMER.
+ */
+export function hasAdequateOvernightRecovery(hoursBelow80F: number): boolean {
+  if (hoursBelow80F < 0) {
+    throw new Error("hoursBelow80F cannot be negative.");
+  }
+  return hoursBelow80F >= RECOVERY_MIN_HOURS;
+}
+
 export type WorkRestTier = "lower" | "moderate" | "high" | "very_high_extreme";
 
 /**
