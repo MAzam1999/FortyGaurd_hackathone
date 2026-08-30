@@ -94,4 +94,4 @@ npm test         # run all lib/**/*.test.ts unit tests (node --test + tsx)
 | **Shamveel Mazhar** | Domain grounding, occupational-heat-safety review, written summary, pitch/demo |
 | **Muhammad Azam** | Application, FortyGuard client, agent, deployment |
 
-See [`docs/PRD.md`](docs/PRD.md) for the full project plan and [`research/api-spike.md`](research/api-spike.md) for verified FortyGuard API findings.
+See [`docs/PRD.md`](docs/PRD.md) for the full project plan, [`docs/fortyguard-api-usage.md`](docs/fortyguard-api-usage.md) for how and why the app calls the FortyGuard API, and [`research/api-spike.md`](research/api-spike.md) for the underlying verified API findings.
