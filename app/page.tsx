@@ -70,14 +70,14 @@ export default function Home() {
   return (
     <div className="flex flex-1 flex-col">
       <section className="bg-background">
-        <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-16 lg:grid-cols-2 lg:items-center lg:py-24">
-          <div className="flex flex-col gap-6">
+        <div className="mx-auto grid w-full max-w-6xl gap-8 px-6 py-10 lg:grid-cols-2 lg:items-center lg:py-14">
+          <div className="flex flex-col gap-4">
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-breeze/30 bg-breeze/10 px-3 py-1 text-xs font-medium text-breeze-bright">
               <ShieldCheckIcon className="h-3.5 w-3.5" />
               Real data. Real impact.
             </span>
 
-            <h1 className="font-sans text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+            <h1 className="font-sans text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
               Heat You{" "}
               <em className="font-[family-name:var(--font-display)] font-medium italic text-breeze-bright">
                 Can&rsquo;t
@@ -85,17 +85,17 @@ export default function Home() {
               Avoid
             </h1>
 
-            <p className="max-w-md font-[family-name:var(--font-display)] text-lg italic text-mist">
+            <p className="max-w-md font-[family-name:var(--font-display)] text-base italic text-mist sm:text-lg">
               Standard heat advice says &ldquo;stay indoors.&rdquo; That&rsquo;s not a real option
               if your shift is fixed, you don&rsquo;t have a car, or your AC isn&rsquo;t reliable.
             </p>
 
-            <p className="max-w-md text-[15px] leading-relaxed text-mist">
+            <p className="max-w-md text-sm leading-relaxed text-mist sm:text-[15px]">
               Coolcore uses real FortyGuard heat data to show which of your actual, limited options
               is measurably less bad — never to tell you to avoid going out.
             </p>
 
-            <div className="mt-2 flex flex-wrap gap-6">
+            <div className="mt-1 flex flex-wrap gap-5">
               {FEATURES.map((f) => {
                 const c = ACCENT_CLASSES[f.accent];
                 return (
@@ -113,8 +113,20 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-border-subtle shadow-2xl">
-            <CitySkyline className="h-auto w-full" />
+          <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+            <div
+              aria-hidden="true"
+              className="absolute -inset-6 -z-10 rounded-full bg-leaf/25 blur-3xl"
+            />
+            <div
+              className="overflow-hidden"
+              style={{
+                maskImage: "radial-gradient(ellipse 82% 82% at center, black 55%, transparent 100%)",
+                WebkitMaskImage: "radial-gradient(ellipse 82% 82% at center, black 55%, transparent 100%)",
+              }}
+            >
+              <CitySkyline className="h-auto w-full" />
+            </div>
           </div>
         </div>
       </section>
