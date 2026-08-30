@@ -8,6 +8,10 @@
  * extreme danger) are intentionally NOT part of this palette — they stay
  * yellow/orange/red/purple so real risk data still reads as hot against a
  * page that otherwise feels like standing in shade.
+ *
+ * leaf / violet / amber are vivid, saturated companions to breeze — used
+ * only as the four hero-workflow accent colors (one per card), never for
+ * risk data.
  */
 :root {
   --color-dusk: #0f2a30;
@@ -21,6 +25,9 @@
   /* Warm, deliberately NOT cool — reserved for caveats/limitations, so a
      disclosed constraint still reads as a distinct signal from live data. */
   --color-ember: #a3652f;
+  --color-leaf: #2fae62;
+  --color-violet: #8b6cf2;
+  --color-amber: #e39a3c;
 
   --background: var(--color-magnolia);
   --foreground: var(--color-ink);
@@ -42,11 +49,15 @@
   --color-mist: var(--color-mist);
   --color-ink: var(--color-ink);
   --color-ember: var(--color-ember);
+  --color-leaf: var(--color-leaf);
+  --color-violet: var(--color-violet);
+  --color-amber: var(--color-amber);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-fraunces);
 }
 
+/* Fallback for the instant before the head script runs, and for no-JS. */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: var(--color-dusk-deep);
@@ -57,64 +68,24 @@
   }
 }
 
+/* An explicit theme choice (toggle + localStorage) always wins over the media query. */
+:root[data-theme="dark"] {
+  --background: var(--color-dusk-deep);
+  --foreground: #e7f1ef;
+  --surface: #12333a;
+  --border-subtle: #1e454d;
+  --color-mist: #8fb0b0;
+}
+
+:root[data-theme="light"] {
+  --background: var(--color-magnolia);
+  --foreground: var(--color-ink);
+  --surface: #ffffff;
+  --border-subtle: #d7e3e1;
+  --color-mist: #5f7d80;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-}
-
-/*
- * Signature motif: dappled light through a live-oak canopy — the real shade
- * St. Charles Ave measures in Cooler Way There. A handful of soft, blurred
- * highlights drifting almost imperceptibly, never sharp enough to read as
- * "decoration" rather than atmosphere.
- */
-.canopy-glow {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.canopy-glow::before,
-.canopy-glow::after {
-  content: "";
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(60px);
-  opacity: 0.35;
-}
-
-.canopy-glow::before {
-  width: 26rem;
-  height: 26rem;
-  top: -8rem;
-  left: -6rem;
-  background: radial-gradient(circle, var(--color-breeze-bright), transparent 70%);
-  animation: canopy-drift-a 26s ease-in-out infinite;
-}
-
-.canopy-glow::after {
-  width: 22rem;
-  height: 22rem;
-  bottom: -9rem;
-  right: -4rem;
-  background: radial-gradient(circle, var(--color-moss), transparent 70%);
-  animation: canopy-drift-b 32s ease-in-out infinite;
-}
-
-@keyframes canopy-drift-a {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(2rem, 1.5rem); }
-}
-
-@keyframes canopy-drift-b {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(-1.5rem, -2rem); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .canopy-glow::before,
-  .canopy-glow::after {
-    animation: none;
-  }
 }

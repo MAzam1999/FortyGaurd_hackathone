@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThemeToggle } from "./ThemeToggle";
 
 const NAV_LINKS = [
   { href: "/shift-plan", label: "The Shift Plan" },
@@ -7,14 +8,34 @@ const NAV_LINKS = [
   { href: "/ask-agent", label: "Ask the Heat Agent" },
 ];
 
+function Logomark() {
+  return (
+    <svg viewBox="0 0 32 32" className="h-7 w-7" aria-hidden="true">
+      <circle cx="16" cy="16" r="13" fill="none" stroke="#2bbcac" strokeWidth="2.5" strokeDasharray="58 24" strokeLinecap="round" />
+      <circle cx="16" cy="16" r="8" fill="none" stroke="#2bbcac" strokeWidth="2.5" strokeDasharray="34 16" strokeLinecap="round" opacity="0.65" />
+    </svg>
+  );
+}
+
 export function SiteHeader() {
   return (
-    <header className="flex w-full items-center gap-6 bg-dusk px-6 py-3 text-sm font-medium text-magnolia">
-      <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-        <span className="inline-block h-2.5 w-2.5 rounded-full bg-breeze-bright" aria-hidden="true" />
-        Coolcore
-      </Link>
-      <nav className="flex flex-wrap gap-5">
+    <header className="flex flex-col gap-3 bg-dusk px-6 py-3 text-sm font-medium text-magnolia md:flex-row md:items-center md:gap-6">
+      <div className="flex items-center justify-between gap-4 md:contents">
+        <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight md:order-1">
+          <Logomark />
+          Coolcore
+        </Link>
+        <div className="flex items-center gap-3 md:order-3">
+          <ThemeToggle />
+          <Link
+            href="/#about"
+            className="rounded-full border border-white/15 px-4 py-1.5 text-sm whitespace-nowrap text-[#a9c4c3] transition-colors hover:border-breeze-bright hover:text-breeze-bright"
+          >
+            About Coolcore
+          </Link>
+        </div>
+      </div>
+      <nav className="flex gap-5 overflow-x-auto whitespace-nowrap pb-0.5 md:order-2 md:flex-1 md:overflow-visible md:pb-0">
         {NAV_LINKS.map((link) => (
           <Link
             key={link.href}
