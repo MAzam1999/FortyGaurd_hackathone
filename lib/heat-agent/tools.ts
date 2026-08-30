@@ -57,8 +57,12 @@ export interface CrewBoardToolResult {
 }
 
 export function crewBoardTool(input: CrewBoardToolInput = {}): CrewBoardToolResult {
-  const scenario = input.worksiteName
-    ? CREW_BOARD_SCENARIO.filter((site) => site.name === input.worksiteName)
+  // Case-insensitive substring match, not exact equality — a caller (an LLM
+  // included) is far more likely to say "Elysian Fields" than the full
+  // "Elysian Fields warehouse build-out" name.
+  const needle = input.worksiteName?.trim().toLowerCase();
+  const scenario = needle
+    ? CREW_BOARD_SCENARIO.filter((site) => site.name.toLowerCase().includes(needle))
     : CREW_BOARD_SCENARIO;
 
   return {

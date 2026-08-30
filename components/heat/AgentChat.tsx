@@ -5,6 +5,7 @@ import { useState } from "react";
 interface ChatMessage {
   role: "user" | "agent";
   text: string;
+  toolCalls?: Array<{ name: string; input: unknown; result: unknown }>;
 }
 
 export function AgentChat() {
@@ -24,8 +25,11 @@ export function AgentChat() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text }),
       });
-      const data = (await res.json()) as { reply: string };
-      setMessages((prev) => [...prev, { role: "agent", text: data.reply }]);
+      const data = (await res.json()) as {
+        reply: string;
+        toolCalls?: Array<{ name: string; input: unknown; result: unknown }>;
+      };
+      setMessages((prev) => [...prev, { role: "agent", text: data.reply, toolCalls: data.toolCalls }]);
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -44,6 +48,20 @@ export function AgentChat() {
         )}
         {messages.map((m, i) => (
           <div key={i} className={m.role === "user" ? "text-right" : "text-left"}>
+            {m.toolCalls && m.toolCalls.length > 0 && (
+              <div className="mb-1 flex flex-col gap-1">
+                {m.toolCalls.map((call, j) => (
+                  <details key={j} className="text-xs text-zinc-500 dark:text-zinc-400">
+                    <summary className="cursor-pointer font-mono">
+                      called {call.name}({JSON.stringify(call.input)})
+                    </summary>
+                    <pre className="mt-1 overflow-x-auto rounded bg-zinc-100 p-2 dark:bg-zinc-900">
+                      {JSON.stringify(call.result, null, 2)}
+                    </pre>
+                  </details>
+                ))}
+              </div>
+            )}
             <span
               className={`inline-block rounded-lg px-3 py-1.5 text-sm ${
                 m.role === "user"

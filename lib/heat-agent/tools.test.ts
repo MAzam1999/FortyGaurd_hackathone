@@ -30,6 +30,12 @@ test("crewBoardTool filters by worksite name when given", () => {
   assert.equal(filtered.worksites[0].name, targetName);
 });
 
+test("crewBoardTool matches a short, partial, differently-cased name", () => {
+  const filtered = crewBoardTool({ worksiteName: "elysian fields" });
+  assert.equal(filtered.worksites.length, 1);
+  assert.ok(filtered.worksites[0].name.toLowerCase().includes("elysian fields"));
+});
+
 test("HEAT_AGENT_TOOLS registers all three tools with a name, description, and runnable fn", () => {
   assert.equal(HEAT_AGENT_TOOLS.length, 3);
   for (const tool of HEAT_AGENT_TOOLS) {

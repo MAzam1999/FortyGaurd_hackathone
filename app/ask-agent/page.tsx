@@ -17,16 +17,16 @@ export default function AskAgentPage() {
         </p>
       </div>
 
-      <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-        <strong>Not wired to a live model yet.</strong> This needs an LLM API key (Anthropic,
-        OpenAI, etc.) that isn&apos;t configured in this project. The 3 tools below are real and
-        already tested — they just aren&apos;t being called by a model yet. Below is what each
-        tool actually returns right now, computed live on this page load, not scripted.
+      <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+        <strong>Live-sourced data:</strong> this chat calls a real model (OpenRouter, Gemma) with
+        tool access to the 3 tools below. Ask it a question and it decides which tool(s) to call —
+        expand &ldquo;called ...&rdquo; under its reply to see the actual tool calls and results,
+        not just the final answer.
       </div>
 
       <section>
         <h2 className="mb-2 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-          Try it — it&apos;s live, it just can&apos;t reason yet
+          Try it — ask about your shift, routes, or crew
         </h2>
         <AgentChat />
         <ul className="mt-3 flex flex-col gap-1 text-sm">
