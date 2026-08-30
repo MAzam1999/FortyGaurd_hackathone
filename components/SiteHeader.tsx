@@ -9,13 +9,18 @@ const NAV_LINKS = [
 
 export function SiteHeader() {
   return (
-    <header className="flex w-full items-center gap-4 border-b border-zinc-200 px-6 py-3 text-sm font-medium dark:border-zinc-800">
-      <Link href="/" className="font-semibold">
+    <header className="flex w-full items-center gap-6 bg-dusk px-6 py-3 text-sm font-medium text-magnolia">
+      <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
+        <span className="inline-block h-2.5 w-2.5 rounded-full bg-breeze-bright" aria-hidden="true" />
         Coolcore
       </Link>
-      <nav className="flex flex-wrap gap-4">
+      <nav className="flex flex-wrap gap-5">
         {NAV_LINKS.map((link) => (
-          <Link key={link.href} href={link.href} className="underline">
+          <Link
+            key={link.href}
+            href={link.href}
+            className="text-[#a9c4c3] transition-colors hover:text-breeze-bright"
+          >
             {link.label}
           </Link>
         ))}

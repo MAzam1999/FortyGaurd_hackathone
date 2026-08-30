@@ -17,8 +17,10 @@ export default function ShiftPlanPage() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-6 py-12">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">The Shift Plan</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <h1 className="font-[family-name:var(--font-display)] text-2xl font-medium tracking-tight">
+          The Shift Plan
+        </h1>
+        <p className="mt-1 text-sm text-mist">
           {scenario.home.label} → {scenario.work.label} · shift{" "}
           {scenario.shiftStartHour % 12 === 0 ? 12 : scenario.shiftStartHour % 12}
           {scenario.shiftStartHour < 12 ? "AM" : "PM"}–
@@ -27,7 +29,7 @@ export default function ShiftPlanPage() {
         </p>
       </div>
 
-      <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+      <div className="rounded-lg border border-breeze/30 bg-breeze/10 px-4 py-3 text-sm text-breeze">
         <strong>Live-sourced data:</strong> hourly heat index for {scenario.date} is a real,
         one-time FortyGuard env_params pull at a real point on the Canal Street corridor
         (captured {SNAPSHOT_GENERATED_AT}, not re-fetched per page view — see
@@ -36,12 +38,12 @@ export default function ShiftPlanPage() {
       </div>
 
       {worstWindow && (
-        <section className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-          <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Worst window today</h2>
+        <section className="rounded-lg border border-border-subtle bg-surface p-4">
+          <h2 className="text-sm font-medium text-mist">Worst window today</h2>
           <p className="mt-1 text-lg font-semibold">
             {worstWindow.startHour}:00–{worstWindow.endHour + 1}:00
           </p>
-          <h3 className="mt-4 text-sm font-medium text-zinc-500 dark:text-zinc-400">
+          <h3 className="mt-4 text-sm font-medium text-mist">
             Realistic options — not &ldquo;stay home&rdquo;
           </h3>
           <ul className="mt-2 flex flex-col gap-2">
@@ -55,18 +57,18 @@ export default function ShiftPlanPage() {
       )}
 
       <section>
-        <h2 className="mb-2 text-sm font-medium text-zinc-500 dark:text-zinc-400">
+        <h2 className="mb-2 text-sm font-medium text-mist">
           Hour-by-hour exposure
         </h2>
         <ExposureTimeline timeline={timeline} />
       </section>
 
-      <section className="rounded-lg border border-zinc-200 p-4 text-sm dark:border-zinc-800">
-        <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+      <section className="rounded-lg border border-border-subtle bg-surface p-4 text-sm">
+        <h2 className="text-sm font-medium text-mist">
           Overnight cooling opportunity
         </h2>
         <p className="mt-1">{recovery}</p>
-        <p className="mt-2 text-xs italic text-zinc-500 dark:text-zinc-400">
+        <p className="mt-2 text-xs italic text-mist">
           {OVERNIGHT_RECOVERY_DISCLAIMER}
         </p>
       </section>

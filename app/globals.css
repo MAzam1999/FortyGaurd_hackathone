@@ -1,26 +1,120 @@
 @import "tailwindcss";
 
+/*
+ * Coolcore palette — a New Orleans dusk, the moment the day's heat finally
+ * breaks. Deep teal-navy (dusk) and warm-white (magnolia) frame the page;
+ * breeze (teal) and moss (live-oak canopy — the real shade St. Charles Ave
+ * corridor measures) carry accents and links. Heat-risk badges (caution →
+ * extreme danger) are intentionally NOT part of this palette — they stay
+ * yellow/orange/red/purple so real risk data still reads as hot against a
+ * page that otherwise feels like standing in shade.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-dusk: #0f2a30;
+  --color-dusk-deep: #0a1e23;
+  --color-magnolia: #f4f8f7;
+  --color-breeze: #1b9c8f;
+  --color-breeze-bright: #2bbcac;
+  --color-moss: #4a7856;
+  --color-mist: #5f7d80;
+  --color-ink: #10201f;
+  /* Warm, deliberately NOT cool — reserved for caveats/limitations, so a
+     disclosed constraint still reads as a distinct signal from live data. */
+  --color-ember: #a3652f;
+
+  --background: var(--color-magnolia);
+  --foreground: var(--color-ink);
+  --surface: #ffffff;
+  --border-subtle: #d7e3e1;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-border-subtle: var(--border-subtle);
+  --color-dusk: var(--color-dusk);
+  --color-dusk-deep: var(--color-dusk-deep);
+  --color-magnolia: var(--color-magnolia);
+  --color-breeze: var(--color-breeze);
+  --color-breeze-bright: var(--color-breeze-bright);
+  --color-moss: var(--color-moss);
+  --color-mist: var(--color-mist);
+  --color-ink: var(--color-ink);
+  --color-ember: var(--color-ember);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fraunces);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: var(--color-dusk-deep);
+    --foreground: #e7f1ef;
+    --surface: #12333a;
+    --border-subtle: #1e454d;
+    --color-mist: #8fb0b0;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/*
+ * Signature motif: dappled light through a live-oak canopy — the real shade
+ * St. Charles Ave measures in Cooler Way There. A handful of soft, blurred
+ * highlights drifting almost imperceptibly, never sharp enough to read as
+ * "decoration" rather than atmosphere.
+ */
+.canopy-glow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.canopy-glow::before,
+.canopy-glow::after {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(60px);
+  opacity: 0.35;
+}
+
+.canopy-glow::before {
+  width: 26rem;
+  height: 26rem;
+  top: -8rem;
+  left: -6rem;
+  background: radial-gradient(circle, var(--color-breeze-bright), transparent 70%);
+  animation: canopy-drift-a 26s ease-in-out infinite;
+}
+
+.canopy-glow::after {
+  width: 22rem;
+  height: 22rem;
+  bottom: -9rem;
+  right: -4rem;
+  background: radial-gradient(circle, var(--color-moss), transparent 70%);
+  animation: canopy-drift-b 32s ease-in-out infinite;
+}
+
+@keyframes canopy-drift-a {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(2rem, 1.5rem); }
+}
+
+@keyframes canopy-drift-b {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-1.5rem, -2rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canopy-glow::before,
+  .canopy-glow::after {
+    animation: none;
+  }
 }

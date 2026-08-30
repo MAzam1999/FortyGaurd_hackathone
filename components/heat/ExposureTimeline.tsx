@@ -9,10 +9,10 @@ function formatHour(hour: number): string {
 
 export function ExposureTimeline({ timeline }: { timeline: TimelineHour[] }) {
   return (
-    <ol className="flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
+    <ol className="flex flex-col divide-y divide-border-subtle">
       {timeline.map((hour) => (
         <li key={hour.hour} className="flex items-center justify-between gap-4 py-2">
-          <span className="w-16 shrink-0 text-sm text-zinc-500 dark:text-zinc-400">{formatHour(hour.hour)}</span>
+          <span className="w-16 shrink-0 text-sm text-mist">{formatHour(hour.hour)}</span>
           <span className="w-16 shrink-0 text-sm tabular-nums">{Math.round(hour.heatIndexF)}°F</span>
           <span className="flex-1 text-right">
             <HeatBadge band={hour.band} />
