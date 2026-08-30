@@ -20,9 +20,8 @@ export default function CoolerWayPage() {
         <strong>Live-sourced data:</strong> comparing the two real corridors Shamveel identified —
         Canal Street (Route 47/48) and St. Charles Avenue (Route 12). Ambient heat index and
         streetview shade are real, one-time FortyGuard pulls at real points on each corridor
-        (captured {SNAPSHOT_GENERATED_AT}, not re-fetched per page view). Shade is measured at one
-        representative point per corridor and applied to both listed stops as an <em>Estimate</em>
-        (not a per-stop measurement) — see lib/live-data/snapshot.ts.
+        (captured {SNAPSHOT_GENERATED_AT}, not re-fetched per page view). Every listed stop has its
+        own per-stop streetview shade reading — see lib/live-data/snapshot.ts.
       </div>
 
       <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
