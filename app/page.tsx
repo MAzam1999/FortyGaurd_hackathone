@@ -69,7 +69,7 @@ const FEATURES = [
 export default function Home() {
   return (
     <div className="flex flex-1 flex-col">
-      <section className="bg-dusk">
+      <section className="bg-background">
         <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-16 lg:grid-cols-2 lg:items-center lg:py-24">
           <div className="flex flex-col gap-6">
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-breeze/30 bg-breeze/10 px-3 py-1 text-xs font-medium text-breeze-bright">
@@ -77,7 +77,7 @@ export default function Home() {
               Real data. Real impact.
             </span>
 
-            <h1 className="font-sans text-4xl font-bold tracking-tight text-magnolia sm:text-5xl">
+            <h1 className="font-sans text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
               Heat You{" "}
               <em className="font-[family-name:var(--font-display)] font-medium italic text-breeze-bright">
                 Can&rsquo;t
@@ -85,12 +85,12 @@ export default function Home() {
               Avoid
             </h1>
 
-            <p className="max-w-md font-[family-name:var(--font-display)] text-lg italic text-[#bcd6d3]">
+            <p className="max-w-md font-[family-name:var(--font-display)] text-lg italic text-mist">
               Standard heat advice says &ldquo;stay indoors.&rdquo; That&rsquo;s not a real option
               if your shift is fixed, you don&rsquo;t have a car, or your AC isn&rsquo;t reliable.
             </p>
 
-            <p className="max-w-md text-[15px] leading-relaxed text-[#8fb0b0]">
+            <p className="max-w-md text-[15px] leading-relaxed text-mist">
               Coolcore uses real FortyGuard heat data to show which of your actual, limited options
               is measurably less bad — never to tell you to avoid going out.
             </p>
@@ -104,8 +104,8 @@ export default function Home() {
                       <f.icon className="h-4.5 w-4.5" />
                     </span>
                     <div className="flex flex-col leading-tight">
-                      <span className="text-sm font-medium text-magnolia">{f.label}</span>
-                      <span className="text-xs text-[#8fb0b0]">{f.sub}</span>
+                      <span className="text-sm font-medium text-foreground">{f.label}</span>
+                      <span className="text-xs text-mist">{f.sub}</span>
                     </div>
                   </div>
                 );
@@ -113,7 +113,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
+          <div className="overflow-hidden rounded-2xl border border-border-subtle shadow-2xl">
             <CitySkyline className="h-auto w-full" />
           </div>
         </div>
