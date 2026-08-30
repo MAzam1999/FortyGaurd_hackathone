@@ -8,21 +8,20 @@ import type { DemoRoute } from "../demo-data/cooler-way-scenario";
 // listed stops per route have live-fetched data; a real corridor comparison
 // only needs the endpoints most riders actually experience (CBD end vs. the
 // far end) — see lib/live-data/snapshot.ts for the exact points and costs.
+// Each stop now carries its own real per-stop streetview shade reading
+// (added 2026-08-30) — no corridor-wide estimate is applied anymore.
 const CANAL_STREET_STOPS = [
-  { lat: 29.9515669, lon: -90.0666808, waitMinutes: 8, label: "Conti St (CBD/French Quarter)" },
-  { lat: 29.9560991, lon: -90.073429, waitMinutes: 7, label: "Elk Place (Storyville, toward Mid-City split)" },
+  { lat: 29.9515669, lon: -90.0666808, waitMinutes: 8, label: "Conti St (CBD/French Quarter)", shadePercent: SHADE_PERCENTS.canalStreet },
+  { lat: 29.9560991, lon: -90.073429, waitMinutes: 7, label: "Elk Place (Storyville, toward Mid-City split)", shadePercent: SHADE_PERCENTS.elkPlace },
 ];
 const ST_CHARLES_AVENUE_STOPS = [
-  { lat: 29.9437541, lon: -90.0718966, waitMinutes: 9, label: "CBD/Warehouse District end" },
-  { lat: 29.927552, lon: -90.1109504, waitMinutes: 6, label: "Uptown, near Burthe St" },
+  // Real streetview here is an indoor/covered-shelter capture, not an open
+  // street scene — see SHADE_PERCENTS.stCharlesCbdEnd in snapshot.ts.
+  { lat: 29.9437541, lon: -90.0718966, waitMinutes: 9, label: "CBD/Warehouse District end", shadePercent: SHADE_PERCENTS.stCharlesCbdEnd },
+  { lat: 29.927552, lon: -90.1109504, waitMinutes: 6, label: "Uptown, near Burthe St", shadePercent: SHADE_PERCENTS.stCharlesAve },
 ];
 
-function buildRoute(
-  name: string,
-  stops: typeof CANAL_STREET_STOPS,
-  ambientHeatIndexF: number,
-  realShadePercent: number,
-): DemoRoute {
+function buildRoute(name: string, stops: typeof CANAL_STREET_STOPS, ambientHeatIndexF: number): DemoRoute {
   return {
     name,
     stops: stops.map((stop) => ({
@@ -30,12 +29,7 @@ function buildRoute(
       lon: stop.lon,
       waitMinutes: stop.waitMinutes,
       heatIndexF: ambientHeatIndexF,
-      // Real streetview segmentation (lib/live-data/snapshot.ts) was only
-      // pulled at one representative point per corridor — ~8,600
-      // credits/call. Applied to both listed stops on this route as an
-      // Estimate (summary.md §14's term for "inferred, not directly
-      // measured at this exact stop") pending per-stop pulls.
-      shadePercent: realShadePercent,
+      shadePercent: stop.shadePercent,
     })),
   };
 }
@@ -47,13 +41,11 @@ export function getCoolerWayLiveData(): { routeA: DemoRoute; routeB: DemoRoute }
       "Canal Street corridor (Route 47/48)",
       CANAL_STREET_STOPS,
       celsiusToFahrenheit(CANAL_STREET_AMBIENT_HEAT_INDEX_C),
-      SHADE_PERCENTS.canalStreet,
     ),
     routeB: buildRoute(
       "St. Charles Avenue corridor (Route 12)",
       ST_CHARLES_AVENUE_STOPS,
       celsiusToFahrenheit(AMBIENT_READINGS.stCharlesAve.heatIndexC),
-      SHADE_PERCENTS.stCharlesAve,
     ),
   };
 }

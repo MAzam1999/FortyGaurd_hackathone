@@ -31,6 +31,25 @@
  * scene — floor/ceiling/bench — because that exact spot's street-level
  * imagery was captured inside a building; re-pulled from the actual tram-way
  * coordinate instead. Never assume a geocoded address is outdoors.)
+ *
+ * UPDATE (2026-08-30): the two Cooler Way There stops that were previously
+ * carrying the corridor's Estimate shade value (Elk Place, St Charles Ave
+ * CBD/Warehouse District end — see lib/live-data/cooler-way.ts) now have
+ * their own real per-stop streetview pulls, from Muhammad Azam's golden key.
+ * Both stops had returned "Failed" on 2026-08-29; Ghada independently
+ * re-tested the exact same coordinates on 2026-08-30 and got a real image on
+ * the first attempt for both, so this was pulled again on the golden key to
+ * confirm and to keep the checked-in dataset traceable to one key. The
+ * repeat "Failed" was a transient API issue, not missing coverage — same
+ * image dates recovered both times (2018-11-01 / 2015-01-01).
+ *
+ * The CBD/Warehouse District end point again returned an INDOOR scene
+ * (floor/ceiling/bench/windowpane/chair — a covered streetcar shelter, not
+ * open street). That's a different segmentation label set than the other
+ * points, so `shadePercent()` below (tree + building) doesn't apply — it
+ * would score the most-sheltered stop as ~0% shade. Scored as 100 instead,
+ * set directly rather than computed. Flagged for Ghada to confirm this
+ * reading, same as the original St Charles Ave indoor-scene finding above.
  */
 
 export const SNAPSHOT_DATE = "2026-08-25"; // the historical date this data describes
@@ -104,6 +123,22 @@ export const STREETVIEW_READINGS = {
     segments: { building: 4.28, sky: 32.24, tree: 17.27, road: 14.65, grass: 28.77, sidewalk: 1.49, car: 0.61, others: 0.69 },
     imageDate: "2025-11-01",
   },
+  /** CANAL_STREET_STOPS[1] (cooler-way.ts). Open streetscape, no tree canopy — fully unsheltered. */
+  elkPlace: {
+    segments: { building: 21.7, sky: 27.65, road: 19.92, sidewalk: 1.22, car: 28.69, others: 0.83 },
+    imageDate: "2018-11-01",
+  },
+  /**
+   * ST_CHARLES_AVENUE_STOPS[0] (cooler-way.ts). INDOOR scene — the streetview
+   * capture at this exact coordinate is inside a covered streetcar shelter
+   * (floor/ceiling/bench/windowpane/chair), not an open street. Not a
+   * building/tree/sky/road scene, so shadePercent() below doesn't apply to
+   * it — see SHADE_PERCENTS.stCharlesCbdEnd for how it's scored instead.
+   */
+  stCharlesCbdEnd: {
+    segments: { floor: 12, ceiling: 30.45, windowpane: 1.82, chair: 0.76, bench: 9.25, others: 45.72 },
+    imageDate: "2015-01-01",
+  },
 };
 
 /** tree canopy + building/structure shade share — matches PRD §6 Hero 2's definition. */
@@ -114,4 +149,12 @@ function shadePercent(segments: Record<string, number>): number {
 export const SHADE_PERCENTS = {
   canalStreet: shadePercent(STREETVIEW_READINGS.canalStreet.segments),
   stCharlesAve: shadePercent(STREETVIEW_READINGS.stCharlesAve.segments),
+  elkPlace: shadePercent(STREETVIEW_READINGS.elkPlace.segments),
+  /**
+   * Set directly, not computed: an indoor/covered-shelter capture (see
+   * STREETVIEW_READINGS.stCharlesCbdEnd) means full overhead cover while
+   * waiting, which the tree+building formula can't express since neither
+   * category is present in an indoor scene.
+   */
+  stCharlesCbdEnd: 100,
 };
